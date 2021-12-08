@@ -5,43 +5,45 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
-	"sync"
 
 	u "github.com/Truth1984/awadau-go"
 )
 
-var once = sync.Once{}
 var singleton = make(map[string]interface{})
 
 // configPath default to ""
-func Setup(configPath string) {
-	once.Do(func() {
-		singleton["config"] = defaultConfig()
+// configMap : {"loglevel": 30, "server": false, "port": 3000}
+func Setup(configPath string, configMap map[string]interface{}) {
 
-		confFromSys := defaultConfig()
-		confFromFile, errFromFile := parseConfigFromFile(configPath)
-		confFromEnv := parseConfigFromEnv()
+	confFromFile, errFromFile := parseConfigFromFile(configPath)
+	confFromEnv := parseConfigFromEnv()
 
-		singleton["config"] = u.MapMerge(confFromSys, confFromFile, confFromEnv)
-		setupLogger()
+	singleton["config"] = u.MapMerge(defaultConfig(), configMap, confFromFile, confFromEnv)
+	setupLogger()
+	setupServer()
 
-		if errFromFile != nil {
-			LDP(errFromFile)
-		}
+	if errFromFile != nil {
+		LDP(errFromFile)
+	}
 
-		LDP("config loaded")
-	})
+	LDP("config loaded")
+}
+
+func SetupVar(config map[string]interface{}) {
+	singleton["config"] = config
 }
 
 func defaultConfig() map[string]interface{} {
 	return map[string]interface{}{
 		"loglevel": 30,
+		"server":   false,
+		"port":     3000,
 	}
 }
 
 func parseConfigFromFile(path string) (map[string]interface{}, error) {
 	if path == "" {
-		return u.Map(), errors.New("config file not found, using default config")
+		return u.Map(), errors.New("config file not found, using empty config")
 	}
 
 	path, err := filepath.Abs(path)
@@ -91,4 +93,10 @@ func ConfigSet(key string, value interface{}) {
 
 func setupLogger() {
 	singleton["loggerInstance"] = SetLogger(u.ToInt(ConfigGet("loglevel")))
+}
+
+func setupServer() {
+	if ConfigGet("server").(bool) {
+		setServer()
+	}
 }

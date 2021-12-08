@@ -7,8 +7,8 @@ import (
 	un "github.com/Truth1984/backend-go/util"
 )
 
-func pm(line string, proceed bool) func(req *http.Request, res http.ResponseWriter, next func()) {
-	return func(req *http.Request, res http.ResponseWriter, next func()) {
+func pm(line string, proceed bool) func(req *http.Request, res http.ResponseWriter, next func(), local map[string]interface{}) {
+	return func(req *http.Request, res http.ResponseWriter, next func(), local map[string]interface{}) {
 		u.Print(line)
 		if proceed {
 			next()
