@@ -1,50 +1,36 @@
 ## setup
 
 ```Go
-import un "github.com/Truth1984/backend-go/util"
-
-func main() {
-	un.Setup("",nil)
-	un.LWP("warning test")
-}
-```
-
-## server setup
-
-```Go
 import (
-	"net/http"
+	"io"
 
 	u "github.com/Truth1984/awadau-go"
 	un "github.com/Truth1984/backend-go/util"
 )
 
-func pm(line string, proceed bool) func(req *http.Request, res http.ResponseWriter, next func(), local map[string]interface{}) {
-	return func(req *http.Request, res http.ResponseWriter, next func(), local map[string]interface{}) {
-		u.Print(line)
-		if proceed {
-			next()
-		}
-	}
-}
-
 func main() {
-	un.Setup("", u.Map("loglevel", 0, "server", true))
-	un.ServerAddPath("/", []string{"GET"}, pm("1", true), pm("2", false), pm("3", true))
-	un.ServerPropeller(pm("4", true))
-	un.ServerPropeller(pm("5", false))
-	un.ServerPropeller(pm("6", true))
+	un.Setup("", u.Map("logging", un.ConfigLogger{Level: 0}))
+	un.Trace("Logging msg")
 
-	un.ServerStart()
-	// listening on port 3000, visiting localhost:3000 println:
-	// 1 \n 2 \n 4 \n 5
+	r := un.ServerInit()
+
+	mw1 := func(input un.HttpPkg) {
+		input.Local["body"] = input.Req.Body
+		input.Next()
+	}
+
+	mw2 := func(input un.HttpPkg) {
+		bodyBytes, err := io.ReadAll(input.Local["body"].(io.Reader))
+		un.ErrorEH(err)
+		un.Warn("middleware body-parser test", string(bodyBytes))
+		input.Next()
+	}
+
+	mws := []func(input un.HttpPkg){mw1, mw2}
+
+	un.ServerPost(r, "/", un.ServerMiddlewareCompile(mws, nil, nil))
+	un.ServerStart(r, 3000)
+
+	// send post req. to localhost:3000 to test the result
 }
 ```
-
-## process
-
-1. use `un.ServerMiddleware` for old `MiddlewareFunc`, which will run first for all routes
-
-2. use `un.ServerAddPath` to add path, and define path specific middleware
-
-3. use `un.ServerPropeller` for global propeller
