@@ -9,7 +9,7 @@ import (
 	u "github.com/Truth1984/awadau-go"
 )
 
-var singleton = make(map[string]interface{})
+var config = defaultConfig()
 
 // configPath default to ""
 // configMap : {"loglevel": 30, "server": false, "port": 3000}
@@ -18,26 +18,22 @@ func Setup(configPath string, configMap map[string]interface{}) {
 	confFromFile, errFromFile := parseConfigFromFile(configPath)
 	confFromEnv := parseConfigFromEnv()
 
-	singleton["config"] = u.MapMerge(defaultConfig(), configMap, confFromFile, confFromEnv)
-	setupLogger()
-	setupServer()
+	config = u.MapMerge(defaultConfig(), configMap, confFromFile, confFromEnv)
+
+	setupLogger((config["logging"]).(ConfigLogger))
 
 	if errFromFile != nil {
-		LDP(errFromFile)
+		Debug(errFromFile)
 	}
 
-	LDP("config loaded")
-}
-
-func SetupVar(config map[string]interface{}) {
-	singleton["config"] = config
+	Debug("config loaded")
 }
 
 func defaultConfig() map[string]interface{} {
 	return map[string]interface{}{
-		"loglevel": 30,
-		"server":   false,
-		"port":     3000,
+		"logging": ConfigLogger{Level: 30},
+		"server":  false,
+		"port":    3000,
 	}
 }
 
@@ -56,7 +52,7 @@ func parseConfigFromFile(path string) (map[string]interface{}, error) {
 		if os.IsNotExist(err) {
 			os.Create(path)
 
-			confStr, _ := u.JsonToString(singleton["config"])
+			confStr, _ := u.JsonToString(config)
 			err := ioutil.WriteFile(path, []byte(confStr), 0644)
 			if err != nil {
 				panic(err)
@@ -84,19 +80,13 @@ func parseConfigFromEnv() map[string]interface{} {
 }
 
 func ConfigGet(key string) interface{} {
-	return SingletonGet("config").(map[string]interface{})[key]
+	return config[key]
 }
 
 func ConfigSet(key string, value interface{}) {
-	SingletonGet("config").(map[string]interface{})[key] = value
+	config[key] = value
 }
 
-func setupLogger() {
-	singleton["loggerInstance"] = SetLogger(u.ToInt(ConfigGet("loglevel")))
-}
-
-func setupServer() {
-	if ConfigGet("server").(bool) {
-		setServer()
-	}
+func setupLogger(conf ConfigLogger) {
+	Logger = SetLogger(conf)
 }

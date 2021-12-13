@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	mm "github.com/Truth1984/mux-middleware"
 	mux "github.com/gorilla/mux"
 )
 
@@ -12,57 +13,68 @@ func ServerQuick(port int, content string) {
 	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(content))
 	})
-	LIP("Server starting, Listening on port " + fmt.Sprint(port))
+	Info("Server starting, Listening on port " + fmt.Sprint(port))
 	http.ListenAndServe(fmt.Sprintf(":%d", port), r)
 }
 
+func ServerInit() *mux.Router {
+	return mux.NewRouter()
+}
+
+func ServerHtml(router *mux.Router, routerPath string, filepath string) {
+	router.PathPrefix(routerPath).Handler(http.FileServer(http.Dir(filepath)))
+}
+
 // mux old global middleware
-func ServerMiddleware(mw mux.MiddlewareFunc) {
-	r := singleton["router"].(*mux.Router)
-	r.Use(mw)
+func ServerMiddleware(router *mux.Router, mw mux.MiddlewareFunc) {
+	router.Use(mw)
 }
 
-func ServerPropeller(f func(req *http.Request, res http.ResponseWriter, next func(), local map[string]interface{})) {
-	p := singleton["propeller"].([]func(req *http.Request, res http.ResponseWriter, next func(), local map[string]interface{}))
-	p = append(p, f)
-	singleton["propeller"] = p
+func ServerMiddlewareCompile(entry []func(input mm.HttpPkg), middleware []func(input mm.HttpPkg), propeller []func(input mm.HttpPkg)) func(w http.ResponseWriter, req *http.Request) {
+	return mm.Compile(entry, middleware, propeller)
 }
 
-func ServerAddPath(path string, method []string, handler ...func(req *http.Request, res http.ResponseWriter, next func(), local map[string]interface{})) {
-	r := singleton["router"].(*mux.Router)
-	r.Methods(method...).Path(path).HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
-		NEXT := false
-		local := make(map[string]interface{})
-
-		setnext := func() {
-			NEXT = true
-		}
-
-		for _, h := range handler {
-			NEXT = false
-			h(req, res, setnext, local)
-			if !NEXT {
-				break
-			}
-		}
-
-		for _, h := range singleton["propeller"].([]func(req *http.Request, res http.ResponseWriter, next func(), local map[string]interface{})) {
-			NEXT = false
-			h(req, res, setnext, local)
-			if !NEXT {
-				break
-			}
-		}
-	})
+func ServerAddPath(router *mux.Router, path string, method []string, f func(http.ResponseWriter, *http.Request)) {
+	router.Methods(method...).Path(path).HandlerFunc(f)
 }
 
-func setServer() {
-	singleton["router"] = mux.NewRouter()
-	singleton["propeller"] = []func(req *http.Request, res http.ResponseWriter, next func(), local map[string]interface{}){}
+func ServerGet(router *mux.Router, action string, f func(http.ResponseWriter, *http.Request)) {
+	router.HandleFunc(action, f).Methods("GET")
 }
 
-func ServerStart() {
-	r := singleton["router"].(*mux.Router)
-	LIP("Server starting, Listening on port " + fmt.Sprint(ConfigGet("port")))
-	http.ListenAndServe(fmt.Sprintf(":%d", ConfigGet("port")), r)
+func ServerPost(router *mux.Router, action string, f func(http.ResponseWriter, *http.Request)) {
+	router.HandleFunc(action, f).Methods("POST")
+}
+
+func ServerPut(router *mux.Router, action string, f func(http.ResponseWriter, *http.Request)) {
+	router.HandleFunc(action, f).Methods("PUT")
+}
+
+func ServerDelete(router *mux.Router, action string, f func(http.ResponseWriter, *http.Request)) {
+	router.HandleFunc(action, f).Methods("DELETE")
+}
+
+func ServerHead(router *mux.Router, action string, f func(http.ResponseWriter, *http.Request)) {
+	router.HandleFunc(action, f).Methods("HEAD")
+}
+
+func ServerOptions(router *mux.Router, action string, f func(http.ResponseWriter, *http.Request)) {
+	router.HandleFunc(action, f).Methods("OPTIONS")
+}
+
+func ServerPatch(router *mux.Router, action string, f func(http.ResponseWriter, *http.Request)) {
+	router.HandleFunc(action, f).Methods("PATCH")
+}
+
+func ServerTrace(router *mux.Router, action string, f func(http.ResponseWriter, *http.Request)) {
+	router.HandleFunc(action, f).Methods("TRACE")
+}
+
+func ServerAny(router *mux.Router, action string, f func(http.ResponseWriter, *http.Request)) {
+	router.HandleFunc(action, f).Methods("GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS", "PATCH", "TRACE")
+}
+
+func ServerStart(router *mux.Router, port int) {
+	Info("Server starting, Listening on port " + fmt.Sprint(port))
+	http.ListenAndServe(fmt.Sprintf(":%d", port), router)
 }

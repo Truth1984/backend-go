@@ -25,7 +25,7 @@ func BcryptCompare(hash, password string) bool {
 func BcryptHash(password string) string {
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
-		EHWarn(err, "BcryptHash - GenerateFromPassword", LogMap(u.Map("password", password), nil))
+		WarnEH(err, "BcryptHash - GenerateFromPassword", LogMap(u.Map("password", password), nil))
 		return password
 	}
 	return string(hash)
