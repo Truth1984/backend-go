@@ -36,7 +36,7 @@ type ConfigLogger struct {
 }
 
 // loglevel: {10: trace, 20: debug, 30: info, 40: warn, 50: err, 60: fatal}
-var Logger loggerStruct = SetLogger(ConfigLogger{Level: 70})
+var Logger loggerStruct = SetLogger(ConfigLogger{Level: 40})
 
 func LogMap(param map[string]interface{}, value map[string]interface{}) string {
 	res, err := u.JsonToString(u.Map("param", param, "value", value), "")

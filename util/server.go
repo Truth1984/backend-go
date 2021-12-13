@@ -8,6 +8,8 @@ import (
 	mux "github.com/gorilla/mux"
 )
 
+type HttpPkg = mm.HttpPkg
+
 func ServerQuick(port int, content string) {
 	r := mux.NewRouter()
 	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
