@@ -40,40 +40,40 @@ func ServerAddPath(router *mux.Router, path string, method []string, f func(http
 	router.Methods(method...).Path(path).HandlerFunc(f)
 }
 
-func ServerGet(router *mux.Router, action string, f func(http.ResponseWriter, *http.Request)) {
-	router.HandleFunc(action, f).Methods("GET")
+func ServerGet(router *mux.Router, path string, f func(http.ResponseWriter, *http.Request)) {
+	router.HandleFunc(path, f).Methods("GET")
 }
 
-func ServerPost(router *mux.Router, action string, f func(http.ResponseWriter, *http.Request)) {
-	router.HandleFunc(action, f).Methods("POST")
+func ServerPost(router *mux.Router, path string, f func(http.ResponseWriter, *http.Request)) {
+	router.HandleFunc(path, f).Methods("POST")
 }
 
-func ServerPut(router *mux.Router, action string, f func(http.ResponseWriter, *http.Request)) {
-	router.HandleFunc(action, f).Methods("PUT")
+func ServerPut(router *mux.Router, path string, f func(http.ResponseWriter, *http.Request)) {
+	router.HandleFunc(path, f).Methods("PUT")
 }
 
-func ServerDelete(router *mux.Router, action string, f func(http.ResponseWriter, *http.Request)) {
-	router.HandleFunc(action, f).Methods("DELETE")
+func ServerDelete(router *mux.Router, path string, f func(http.ResponseWriter, *http.Request)) {
+	router.HandleFunc(path, f).Methods("DELETE")
 }
 
-func ServerHead(router *mux.Router, action string, f func(http.ResponseWriter, *http.Request)) {
-	router.HandleFunc(action, f).Methods("HEAD")
+func ServerHead(router *mux.Router, path string, f func(http.ResponseWriter, *http.Request)) {
+	router.HandleFunc(path, f).Methods("HEAD")
 }
 
-func ServerOptions(router *mux.Router, action string, f func(http.ResponseWriter, *http.Request)) {
-	router.HandleFunc(action, f).Methods("OPTIONS")
+func ServerOptions(router *mux.Router, path string, f func(http.ResponseWriter, *http.Request)) {
+	router.HandleFunc(path, f).Methods("OPTIONS")
 }
 
-func ServerPatch(router *mux.Router, action string, f func(http.ResponseWriter, *http.Request)) {
-	router.HandleFunc(action, f).Methods("PATCH")
+func ServerPatch(router *mux.Router, path string, f func(http.ResponseWriter, *http.Request)) {
+	router.HandleFunc(path, f).Methods("PATCH")
 }
 
-func ServerTrace(router *mux.Router, action string, f func(http.ResponseWriter, *http.Request)) {
-	router.HandleFunc(action, f).Methods("TRACE")
+func ServerTrace(router *mux.Router, path string, f func(http.ResponseWriter, *http.Request)) {
+	router.HandleFunc(path, f).Methods("TRACE")
 }
 
-func ServerAny(router *mux.Router, action string, f func(http.ResponseWriter, *http.Request)) {
-	router.HandleFunc(action, f).Methods("GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS", "PATCH", "TRACE")
+func ServerAny(router *mux.Router, path string, f func(http.ResponseWriter, *http.Request)) {
+	router.HandleFunc(path, f).Methods("GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS", "PATCH", "TRACE")
 }
 
 func ServerStart(router *mux.Router, port int) {
