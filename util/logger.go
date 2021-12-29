@@ -22,6 +22,7 @@ type logMethod struct {
 	Print   func(...interface{})
 	Printf  func(string, ...interface{})
 	Println func(...interface{})
+	PrintEH func(error, ...interface{})
 }
 
 type ConfigLogger struct {
@@ -37,6 +38,17 @@ type ConfigLogger struct {
 
 // loglevel: {10: trace, 20: debug, 30: info, 40: warn, 50: err, 60: fatal}
 var Logger loggerStruct = SetLogger(ConfigLogger{Level: 40})
+var Trace = func(...interface{}) {}
+var Debug = func(...interface{}) {}
+var Info = func(...interface{}) {}
+var Warn = func(...interface{}) {}
+var Error = func(...interface{}) {}
+var Fatal = func(...interface{}) {}
+var WarnEH = func(error, ...interface{}) {}
+var ErrorEH = func(error, ...interface{}) {}
+var FatalEH = func(error, ...interface{}) {}
+
+// add errorhanle func with flag
 
 func LogMap(param map[string]interface{}, value map[string]interface{}) string {
 	res, err := u.JsonToString(u.Map("param", param, "value", value), "")
@@ -51,10 +63,28 @@ func emptyLog() logMethod {
 		Print:   func(...interface{}) {},
 		Printf:  func(string, ...interface{}) {},
 		Println: func(...interface{}) {},
+		PrintEH: func(error, ...interface{}) {},
 	}
 }
 
-func extractLog(logger *log.Logger, dir string, file string) logMethod {
+func _eh(logger *log.Logger, exitAfterEH bool) func(error, ...interface{}) {
+	if exitAfterEH {
+		return func(err error, line ...interface{}) {
+			if err != nil {
+				logger.Println(append([]interface{}{err}, line...)...)
+				os.Exit(1)
+			}
+		}
+	} else {
+		return func(err error, line ...interface{}) {
+			if err != nil {
+				logger.Println(append([]interface{}{err}, line...)...)
+			}
+		}
+	}
+}
+
+func extractLog(logger *log.Logger, dir string, file string, exitAfterEH bool) logMethod {
 	if file != "" {
 		logpath := filepath.Join(dir, file)
 		logFile, err := os.OpenFile(logpath, os.O_CREATE|os.O_APPEND|os.O_RDWR, 0666)
@@ -68,6 +98,7 @@ func extractLog(logger *log.Logger, dir string, file string) logMethod {
 		Print:   logger.Print,
 		Printf:  logger.Printf,
 		Println: logger.Println,
+		PrintEH: _eh(logger, exitAfterEH),
 	}
 }
 
@@ -84,67 +115,32 @@ func SetLogger(conf ConfigLogger) loggerStruct {
 
 	flags := log.Ldate | log.Ltime | log.Lshortfile
 	if logLevel <= 60 {
-		fatal = extractLog(log.New(os.Stderr, "FATAL: ", flags), conf.LogDir, conf.FatalFileName)
+		fatal = extractLog(log.New(os.Stderr, "FATAL: ", flags), conf.LogDir, conf.FatalFileName, true)
+		Fatal = fatal.Println
+		FatalEH = fatal.PrintEH
 	}
 	if logLevel <= 50 {
-		err = extractLog(log.New(os.Stderr, "ERROR: ", flags), conf.LogDir, conf.ErrorFileName)
+		err = extractLog(log.New(os.Stderr, "ERROR: ", flags), conf.LogDir, conf.ErrorFileName, false)
+		Error = err.Println
+		ErrorEH = err.PrintEH
 	}
 	if logLevel <= 40 {
-		warn = extractLog(log.New(os.Stderr, "WARN: ", flags), conf.LogDir, conf.WarnFileName)
+		warn = extractLog(log.New(os.Stderr, "WARN: ", flags), conf.LogDir, conf.WarnFileName, false)
+		Warn = warn.Println
+		WarnEH = warn.PrintEH
 	}
 	if logLevel <= 30 {
-		info = extractLog(log.New(os.Stdout, "INFO: ", flags), conf.LogDir, conf.InfoFileName)
+		info = extractLog(log.New(os.Stdout, "INFO: ", flags), conf.LogDir, conf.InfoFileName, false)
+		Info = info.Println
 	}
 	if logLevel <= 20 {
-		debug = extractLog(log.New(os.Stdout, "DEBUG: ", flags), conf.LogDir, conf.DebugFileName)
+		debug = extractLog(log.New(os.Stdout, "DEBUG: ", flags), conf.LogDir, conf.DebugFileName, false)
+		Debug = debug.Println
 	}
 	if logLevel <= 10 {
-		trace = extractLog(log.New(os.Stdout, "TRACE: ", flags), conf.LogDir, conf.TraceFileName)
+		trace = extractLog(log.New(os.Stdout, "TRACE: ", flags), conf.LogDir, conf.TraceFileName, false)
+		Trace = trace.Println
 	}
 
 	return loggerStruct{Trace: trace, Debug: debug, Info: info, Warn: warn, Error: err, Fatal: fatal}
-}
-
-func Trace(line ...interface{}) {
-	Logger.Trace.Println(line...)
-}
-
-func Debug(line ...interface{}) {
-	Logger.Debug.Println(line...)
-}
-
-func Info(line ...interface{}) {
-	Logger.Info.Println(line...)
-}
-
-func Warn(line ...interface{}) {
-	Logger.Warn.Println(line...)
-}
-
-func WarnEH(err error, line ...interface{}) {
-	if err != nil {
-		Logger.Warn.Println(append([]interface{}{err}, line...)...)
-	}
-}
-
-func Error(line ...interface{}) {
-	Logger.Error.Println(line...)
-}
-
-func ErrorEH(err error, line ...interface{}) {
-	if err != nil {
-		Logger.Error.Println(append([]interface{}{err}, line...)...)
-	}
-}
-
-func Fatal(line ...interface{}) {
-	Logger.Fatal.Println(line...)
-	os.Exit(1)
-}
-
-func FatalEH(err error, line ...interface{}) {
-	if err != nil {
-		Logger.Fatal.Println(append([]interface{}{err}, line...)...)
-		os.Exit(1)
-	}
 }

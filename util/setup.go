@@ -20,7 +20,7 @@ func Setup(configPath string, configMap map[string]interface{}) {
 
 	config = u.MapMerge(defaultConfig(), configMap, confFromFile, confFromEnv)
 
-	setupLogger((config["logging"]).(ConfigLogger))
+	setupLogger(config["logging"])
 
 	if errFromFile != nil {
 		Debug(errFromFile)
@@ -30,10 +30,12 @@ func Setup(configPath string, configMap map[string]interface{}) {
 }
 
 func defaultConfig() map[string]interface{} {
+	logging, err := u.StructToMap(&ConfigLogger{Level: 30})
+	if err != nil {
+		panic(err)
+	}
 	return map[string]interface{}{
-		"logging": ConfigLogger{Level: 30},
-		"server":  false,
-		"port":    3000,
+		"logging": logging,
 	}
 }
 
@@ -87,6 +89,8 @@ func ConfigSet(key string, value interface{}) {
 	config[key] = value
 }
 
-func setupLogger(conf ConfigLogger) {
-	Logger = SetLogger(conf)
+func setupLogger(conf interface{}) {
+	cl := ConfigLogger{}
+	u.MapToStructHandled(conf.(map[string]interface{}), &cl)
+	Logger = SetLogger(cl)
 }

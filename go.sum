@@ -1,9 +1,17 @@
 github.com/Truth1984/awadau-go v0.0.0-20211205163553-ceaaddb80067 h1:Ovo0V/VtBDeWFviiiAWl7sylZmGwJUpoVmjhgplwjwk=
 github.com/Truth1984/awadau-go v0.0.0-20211205163553-ceaaddb80067/go.mod h1:D5qSw1uJDQL6IiIfmz0fQtYX/1QvEGsFBuB3TIsLPmc=
+github.com/Truth1984/awadau-go v0.0.0-20211228024003-f6cfcf9191d6 h1:yP8D2H+YCQRw4JzDbc5UIxfqOtDohaADpUTNGN3KJpA=
+github.com/Truth1984/awadau-go v0.0.0-20211228024003-f6cfcf9191d6/go.mod h1:D5qSw1uJDQL6IiIfmz0fQtYX/1QvEGsFBuB3TIsLPmc=
+github.com/Truth1984/awadau-go v0.0.0-20211228070740-aeffcbc73277 h1:SX5G5wSJsRWpg/UAtSUXffTCz3CYvtHItVUiAb/wSwo=
+github.com/Truth1984/awadau-go v0.0.0-20211228070740-aeffcbc73277/go.mod h1:D5qSw1uJDQL6IiIfmz0fQtYX/1QvEGsFBuB3TIsLPmc=
+github.com/Truth1984/awadau-go v0.0.0-20211228075054-44fca41bb717 h1:Pp+9OUyEEbskXs4bpiOwtjyRpombJBV5AHVEdwVw3C4=
+github.com/Truth1984/awadau-go v0.0.0-20211228075054-44fca41bb717/go.mod h1:D5qSw1uJDQL6IiIfmz0fQtYX/1QvEGsFBuB3TIsLPmc=
 github.com/Truth1984/mux-middleware v0.0.0-20211208111648-3143147614f2 h1:Fw/SHg5pR3k3HsETLoce70fPPgKE7F8RD0fhBsP4ZvM=
 github.com/Truth1984/mux-middleware v0.0.0-20211208111648-3143147614f2/go.mod h1:+GVwpODYFOpOC0Jz4sCVTnUCGO+n7QeKzVJtR5MSetg=
 github.com/araddon/dateparse v0.0.0-20210207001429-0eec95c9db7e h1:OjdSMCht0ZVX7IH0nTdf00xEustvbtUGRgMh3gbdmOg=
 github.com/araddon/dateparse v0.0.0-20210207001429-0eec95c9db7e/go.mod h1:DCaWoUhZrYW9p1lxo/cm8EmUOOzAPSEZNGF2DK1dJgw=
+github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de h1:FxWPpzIjnTlhPwqqXc4/vE0f7GvRjuAsbW+HOIe8KnA=
+github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de/go.mod h1:DCaWoUhZrYW9p1lxo/cm8EmUOOzAPSEZNGF2DK1dJgw=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/google/uuid v1.3.0 h1:t6JiXgmwXMjEs8VusXIJk2BXHsn+wx8BZdTaoZ5fu7I=
 github.com/google/uuid v1.3.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=

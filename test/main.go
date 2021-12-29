@@ -21,13 +21,17 @@ func main() {
 		input.Next()
 	}
 
-	un.Setup("", u.Map("logging", un.ConfigLogger{Level: 0}))
+	un.ConfigSet("logging", map[string]interface{}{"level": 0})
+	un.Setup("./config.json", nil)
+	un.Debug("debug")
 	un.Warn("test")
 	r := un.ServerInit()
 	mws := []func(input un.HttpPkg){mw1, mw2}
 
 	un.ServerPost(r, "/", un.ServerMiddlewareCompile(mws, nil, nil))
+
 	un.ServerStart(r, 3000)
+	u.Print(un.ConfigGet("logging"), "lg")
 
 	// post to localhost:3000 to test the result
 }
