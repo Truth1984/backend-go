@@ -19,7 +19,7 @@ func Setup(configPath string, configMap map[string]interface{}) {
 	confFromFile, errFromFile := parseConfigFromFile(configPath)
 	confFromEnv := parseConfigFromEnv()
 
-	config = u.MapMerge(defaultConfig(), configMap, confFromFile, confFromEnv)
+	config = u.MapMerge(config, configMap, confFromFile, confFromEnv)
 
 	setupLogger(config["logging"])
 
