@@ -11,8 +11,9 @@ import (
 
 var config = defaultConfig()
 
-// configPath default to ""
-// configMap : {"loglevel": 30, "server": false, "port": 3000}
+// configPath default to "", use ConfigSet before setup to write configMap to file
+// if file did not exit
+// configMap : {"loglevel": 30}
 func Setup(configPath string, configMap map[string]interface{}) {
 
 	confFromFile, errFromFile := parseConfigFromFile(configPath)
@@ -23,7 +24,7 @@ func Setup(configPath string, configMap map[string]interface{}) {
 	setupLogger(config["logging"])
 
 	if errFromFile != nil {
-		Debug(errFromFile)
+		Warn(errFromFile)
 	}
 
 	Debug("config loaded")

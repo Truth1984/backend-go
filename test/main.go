@@ -31,7 +31,8 @@ func main() {
 	un.ServerPost(r, "/", un.ServerMiddlewareCompile(mws, nil, nil))
 
 	un.ServerStart(r, 3000)
-	u.Print(un.ConfigGet("logging"), "lg")
+
+	u.Print("unreachable ?")
 
 	// post to localhost:3000 to test the result
 }
