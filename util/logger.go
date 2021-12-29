@@ -22,7 +22,7 @@ type logMethod struct {
 	Print   func(...interface{})
 	Printf  func(string, ...interface{})
 	Println func(...interface{})
-	PrintEH func(error, ...interface{})
+	PrintEH func(error, ...interface{}) bool
 }
 
 type ConfigLogger struct {
@@ -44,9 +44,28 @@ var Info = func(...interface{}) {}
 var Warn = func(...interface{}) {}
 var Error = func(...interface{}) {}
 var Fatal = func(...interface{}) {}
-var WarnEH = func(error, ...interface{}) {}
-var ErrorEH = func(error, ...interface{}) {}
-var FatalEH = func(error, ...interface{}) {}
+
+var WarnEH = func(err error, line ...interface{}) bool {
+	if err != nil {
+		return true
+	} else {
+		return false
+	}
+}
+var ErrorEH = func(err error, line ...interface{}) bool {
+	if err != nil {
+		return true
+	} else {
+		return false
+	}
+}
+var FatalEH = func(err error, line ...interface{}) bool {
+	if err != nil {
+		return true
+	} else {
+		return false
+	}
+}
 
 // add errorhanle func with flag
 
@@ -63,23 +82,33 @@ func emptyLog() logMethod {
 		Print:   func(...interface{}) {},
 		Printf:  func(string, ...interface{}) {},
 		Println: func(...interface{}) {},
-		PrintEH: func(error, ...interface{}) {},
+		PrintEH: func(err error, line ...interface{}) bool {
+			if err != nil {
+				return true
+			} else {
+				return false
+			}
+		},
 	}
 }
 
-func _eh(logger *log.Logger, exitAfterEH bool) func(error, ...interface{}) {
+func _eh(logger *log.Logger, exitAfterEH bool) func(error, ...interface{}) bool {
 	if exitAfterEH {
-		return func(err error, line ...interface{}) {
+		return func(err error, line ...interface{}) bool {
 			if err != nil {
 				logger.Println(append([]interface{}{err}, line...)...)
 				os.Exit(1)
+				return true
 			}
+			return false
 		}
 	} else {
-		return func(err error, line ...interface{}) {
+		return func(err error, line ...interface{}) bool {
 			if err != nil {
 				logger.Println(append([]interface{}{err}, line...)...)
+				return true
 			}
+			return false
 		}
 	}
 }
